@@ -18,23 +18,31 @@ const COUNTRY_ARR = [
 
 const COUNTRY_ARR = [1897322579, 1902583839, 1364105295, 2049372517, 1344170077, 2002577709];
 
-const EU = parseInt('1000000000000000000000000000000', 2);
-const EUROZONE = parseInt('0100000000000000000000000000000', 2);
-const SCHENGEN = parseInt('0010000000000000000000000000000', 2);
-const EU_EUROZONE = EU | EUROZONE;
+const EU = 1073741824;
+const EUROZONE = 536870912;
+const SCHENGEN = 268435456;
+const POPULATION_MAX = 2000; //thousand
+const AREA_MAX = 200; //thousand
+const DENSITY = {
+    min: 200,
+    max: 400
+};
 
-const euAndEurozone = n => (n & EU_EUROZONE).toString(2) === EU_EUROZONE.toString(2);
+const getEuropian = n => n & EU;
+const getEurozone = n => n & EUROZONE;
+const getShengen = n => n & SCHENGEN;
+const getPopulation = n => ((n<<4)>>>15);
+const getArea = n => ((n<<21)>>>21);
+const getDensity = n => getPopulation(n) / getArea(n);
 
-const shengen = n => 
-        (n & EUROZONE).toString(2) === (0).toString(2) 
-        && ((n & SCHENGEN).toString(2)) === SCHENGEN.toString(2)
-        && (parseInt((n.toString(2).slice(3, 20)),2) > 2000)
-        && (parseInt((n.toString(2).slice(20, 31)),2) < 200);
+const predicateA = n => getEuropian(n) === EU && getEurozone(n) === EUROZONE;
+const predicateB = n => 
+    (n & EUROZONE) !== EUROZONE
+    && (n & SCHENGEN) === SCHENGEN
+    && getPopulation(n) > POPULATION_MAX
+    && getArea(n) < AREA_MAX;
+const predicateC = n => getDensity(n) > DENSITY.min && getDensity(n) < DENSITY.max;
 
-const dencity = n =>
-    (parseInt((n.toString(2).slice(3, 20)),2) / parseInt((n.toString(2).slice(20, 31)),2)) > 200
-    && (parseInt((n.toString(2).slice(3, 20)),2) / parseInt((n.toString(2).slice(20, 31)),2)) < 400;
-
-console.log(COUNTRY_ARR.filter(euAndEurozone))
-console.log(COUNTRY_ARR.filter(shengen));
-console.log(COUNTRY_ARR.filter(dencity));
+console.log(COUNTRY_ARR.filter(predicateA))
+console.log(COUNTRY_ARR.filter(predicateB));
+console.log(COUNTRY_ARR.filter(predicateC));
