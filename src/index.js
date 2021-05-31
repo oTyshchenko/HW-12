@@ -18,27 +18,36 @@ const COUNTRY_ARR = [
 
 const COUNTRY_ARR = [1897322579, 1902583839, 1364105295, 2049372517, 1344170077, 2002577709];
 
-const EU = 1073741824;
-const EUROZONE = 536870912;
-const SCHENGEN = 268435456;
+const EU_MASK = 1073741824;
+const EUROZONE_MASK = 536870912;
+const SCHENGEN_MASK = 268435456;
 const POPULATION_MAX = 2000; //thousand
 const AREA_MAX = 200; //thousand
 const DENSITY = {
     min: 200,
     max: 400
 };
+const populationSlice = {
+    start: 4,
+    end: 15
+};
+const areaSlice = {
+    start: 21,
+    end: 21,
+}
 
-const getEuropian = n => n & EU;
-const getEurozone = n => n & EUROZONE;
-const getShengen = n => n & SCHENGEN;
-const getPopulation = n => ((n<<4)>>>15);
-const getArea = n => ((n<<21)>>>21);
+
+const getEuropian = n => n & EU_MASK;
+const getEurozone = n => n & EUROZONE_MASK;
+const getShengen = n => n & SCHENGEN_MASK;
+const getPopulation = n => ((n<<populationSlice.start)>>>populationSlice.end);
+const getArea = n => ((n<<areaSlice.start)>>>areaSlice.end);
 const getDensity = n => getPopulation(n) / getArea(n);
 
-const predicateA = n => getEuropian(n) === EU && getEurozone(n) === EUROZONE;
+const predicateA = n => getEuropian(n) === EU_MASK && getEurozone(n) === EUROZONE_MASK;
 const predicateB = n => 
-    (n & EUROZONE) !== EUROZONE
-    && (n & SCHENGEN) === SCHENGEN
+    (n & EUROZONE_MASK) !== EUROZONE_MASK
+    && (n & SCHENGEN_MASK) === SCHENGEN_MASK
     && getPopulation(n) > POPULATION_MAX
     && getArea(n) < AREA_MAX;
 const predicateC = n => getDensity(n) > DENSITY.min && getDensity(n) < DENSITY.max;
